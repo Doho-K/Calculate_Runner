@@ -9,6 +9,10 @@ using System.IO;
 
 public class GameManager : MonoBehaviour
 {
+    private const float LeftBound = 26f;   // 왼쪽 경계
+    private const float RightBound = 34f; // 오른쪽 경계
+    private const float CenterPoint = 30f; // 플레이어 중심점
+
     // 싱글톤 인스턴스
     public static GameManager Instance { get; private set; }
 
@@ -16,8 +20,11 @@ public class GameManager : MonoBehaviour
 
     // CSV 데이터 저장용
     public TextAsset csvFile; // Resources에서 로드된 CSV 파일
+    public TextAsset tutoFile;
+
     private List<Dictionary<string, string>> allData = new List<Dictionary<string, string>>(); // 전체 데이터
-    
+    private List<Dictionary<string, string>> tutoData = new List<Dictionary<string, string>>();
+
     public List<Dictionary<string, string>> randomizedQuestions = new List<Dictionary<string, string>>(); // 랜덤 문제 데이터
 
     private List<Dictionary<string, string>> userResults = new List<Dictionary<string, string>>();
@@ -156,17 +163,27 @@ public class GameManager : MonoBehaviour
             SaveGameData();
             PauseGame();
         }
-        if(isTutorial > 0 && (collidedObject.name == "Left_Wall"||collidedObject.name == "Right_Wall")){
+        if(isTutorial > 0 && (collidedObject.name == "ColliderWall")){
             if(isTutorial >= 10){
                 isTutorial = -10;
                 PauseGame();
             }
-            SpawnQuestion(40);
+            SpawnQuestion(isTutorial);
             isTutorial++;
         }
-        else if(collidedObject.name == "Left_Wall"){
-            
-            RecordUserChoice(currentIdx,"Left");
+        else if(collidedObject.name == "ColliderWall"){
+            float distanceToLeft = Mathf.Abs(player.transform.position.x - LeftBound);
+            float distanceToRight = Mathf.Abs(player.transform.position.x - RightBound);
+            if (distanceToLeft < distanceToRight)
+            {
+                RecordUserChoice(currentIdx,"Left");
+                Debug.Log("Collision is closer to the left side.");
+            }
+            else
+            {
+                RecordUserChoice(currentIdx,"Right");
+                Debug.Log("Collision is closer to the right side.");
+            }
             if(currentIdx%15==0){
                 currentIdx++;
                 PauseGame();
@@ -177,32 +194,7 @@ public class GameManager : MonoBehaviour
             }
             
         }
-        else if(collidedObject.name == "Right_Wall"){
-            
-            RecordUserChoice(currentIdx,"Right");
-            if(currentIdx%15==0){
-                currentIdx++;
-                PauseGame();
-            }
-            else{
-                SpawnQuestion(currentIdx);
-                currentIdx++;
-            }
-
-        }
-        else if(collidedObject.name == "Center"){
-            
-            RecordUserChoice(currentIdx,"Center");
-            if(currentIdx%15==0){
-                currentIdx++;
-                PauseGame();
-            }
-            else{
-                SpawnQuestion(currentIdx);
-                currentIdx++;
-            }
-
-        }
+        
 
     }
 
@@ -214,8 +206,10 @@ public class GameManager : MonoBehaviour
             Debug.LogError("CSV file is missing!");
             return;
         }
-
+        
         string[] lines = csvFile.text.Split('\n');
+        string[] tutolines = tutoFile.text.Split('\n');
+
         if (lines.Length < 2)
         {
             Debug.LogError("CSV file has insufficient data!");
@@ -223,6 +217,7 @@ public class GameManager : MonoBehaviour
         }
 
         string[] headers = lines[0].Split(',');
+        string[] tutoheaders = tutolines[0].Split(',');
         Debug.Log($"Headers: {string.Join(", ", headers)}");
 
         for (int i = 1; i < lines.Length; i++)
@@ -243,6 +238,21 @@ public class GameManager : MonoBehaviour
             }
 
             allData.Add(entry);
+        }
+
+        for (int i =1;i<tutolines.Length;i++){
+            if (string.IsNullOrWhiteSpace(tutolines[i])) continue;
+
+            string [] tutovalues = tutolines[i].Split(',');
+            if ( tutovalues.Length != tutoheaders.Length){
+                continue;
+            }
+
+            Dictionary<string, string> tutoentry = new Dictionary<string,string>();
+            for(int j = 0;j<tutoheaders.Length;j++){
+                tutoentry[tutoheaders[j].Trim()] = tutovalues[j].Trim();
+            }
+            tutoData.Add(tutoentry);
         }
 
         Debug.Log($"Loaded {allData.Count} rows from CSV.");
@@ -336,6 +346,16 @@ public class GameManager : MonoBehaviour
     public void SpawnQuestion(int questionIndex)
     {
         Dictionary<string, string> questionData = randomizedQuestions[questionIndex];
+        if(isTutorial > 0 ){
+            if(isTutorial >= 15){
+                questionData = tutoData[1];
+            }
+            else{
+                questionData = tutoData[questionIndex];
+            }
+            
+            
+        }
         string round = questionData["round"];
 
         // round의 앞 숫자 가져오기
@@ -362,12 +382,15 @@ public class GameManager : MonoBehaviour
                 Debug.LogWarning($"Invalid round number: {roundNumber}");
                 return;
         }
+        if(isTutorial>0){
+            distanceAhead = 15f;
+        }
         // 플레이어의 현재 위치
         Vector3 playerPosition = player.transform.position;
         Vector3 spawnPosition = new Vector3(
         30,
         1,
-        playerPosition.z + (player.transform.forward.z * roundNumber * distanceAhead)
+        playerPosition.z + (player.transform.forward.z  * distanceAhead)
     );
         scoreText.text = questionData["player_state"];
         // 프리팹 생성

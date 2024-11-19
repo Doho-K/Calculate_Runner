@@ -541,11 +541,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 0}
-  csvFile: {fileID: 4900000, guid: 33f74b18f4fecea4fb3aee353f035d1d, type: 3}
-  close: {fileID: 0}
-  middle: {fileID: 0}
-  far: {fileID: 0}
+  csvFile: {fileID: 4900000, guid: 6bb137965c249ea4d86d79f0c158d28a, type: 3}
+  tutoFile: {fileID: 4900000, guid: 5efd340540ce9c24f9c20a1b033ed80a, type: 3}
   questionPrefab: {fileID: 3347486454335902917, guid: 3f1f62b0ab6b6c54ab9167df24e2ba2d, type: 3}
+  currentIdx: 0
+  pauseMenuUI: {fileID: 0}
 --- !u!1 &487858772
 GameObject:
   m_ObjectHideFlags: 0
@@ -715,7 +715,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -140}
+  m_AnchoredPosition: {x: 0, y: -178}
   m_SizeDelta: {x: 500, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &750168092
@@ -752,7 +752,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 12b47859d7dccae4b849cf6b168ec9ab, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 843a3cf44c6edfc4b80ac86be2966f06, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
