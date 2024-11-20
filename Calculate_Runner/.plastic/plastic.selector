@@ -1,4 +1,0 @@
-repository "Calculate_Runner/Calculate_Runner@14568767549818@cloud"
-  path "/"
-    br "/main"
-    co "/main"
