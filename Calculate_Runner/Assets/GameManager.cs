@@ -62,6 +62,7 @@ public class GameManager : MonoBehaviour
 
         LoadCSV(); // CSV 데이터 로드
         GenerateRandomQuestionsByRound(); // 1-1부터 1-5까지 랜덤 플레이
+        PrintQuestions();
         currentIdx = 1;
     }
 
@@ -100,7 +101,8 @@ public class GameManager : MonoBehaviour
             Debug.LogError("RestartButton not found in the scene!");
         }
         pauseMenuUI.gameObject.SetActive(false); // 버튼 비활성화
-        Transform textTransform = gameCanvas.transform.Find("ScoreText");
+        Transform textBackground = gameCanvas.transform.Find("Background");
+        Transform textTransform = textBackground.transform.Find("ScoreText");
         Transform textTransform2 = gameCanvas.transform.Find("StageText");
         if (textTransform != null)
         {
@@ -120,7 +122,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("PlayerscoreText not found under Canvas!");
         }
-        SpawnQuestion(currentIdx);
+        SpawnQuestion(currentIdx-1);
 
         if(isPaused == true){
             ResumeGame();
@@ -159,6 +161,7 @@ public class GameManager : MonoBehaviour
     public void OnPlayerHit(GameObject collidedObject)
     {
         Debug.Log($"Player collided with: {collidedObject.name}");
+        Debug.Log($"Current Idx : {currentIdx}");
         if(currentIdx == 225){
             SaveGameData();
             PauseGame();
@@ -176,12 +179,12 @@ public class GameManager : MonoBehaviour
             float distanceToRight = Mathf.Abs(player.transform.position.x - RightBound);
             if (distanceToLeft < distanceToRight)
             {
-                RecordUserChoice(currentIdx,"Left");
+                RecordUserChoice(currentIdx-1,"Left");
                 Debug.Log("Collision is closer to the left side.");
             }
             else
             {
-                RecordUserChoice(currentIdx,"Right");
+                RecordUserChoice(currentIdx-1,"Right");
                 Debug.Log("Collision is closer to the right side.");
             }
             if(currentIdx%15==0){
@@ -189,8 +192,9 @@ public class GameManager : MonoBehaviour
                 PauseGame();
             }
             else{
-                SpawnQuestion(currentIdx);
                 currentIdx++;
+                SpawnQuestion(currentIdx-1);
+                
             }
             
         }
@@ -305,7 +309,7 @@ public class GameManager : MonoBehaviour
             // 섞은 세트를 결과 리스트에 추가
             randomizedQuestions.AddRange(questions);
         }
-
+        
         Debug.Log($"Randomized Questions Count: {randomizedQuestions.Count}");
     }
 
@@ -370,13 +374,13 @@ public class GameManager : MonoBehaviour
         switch (roundNumber)
         {
             case 1:
-                distanceAhead = 5f;
+                distanceAhead = 7f;
                 break;
             case 2:
                 distanceAhead = 10f;
                 break;
             case 3:
-                distanceAhead = 15f;
+                distanceAhead = 13f;
                 break;
             default:
                 Debug.LogWarning($"Invalid round number: {roundNumber}");
@@ -488,7 +492,7 @@ public class GameManager : MonoBehaviour
         csvLines.Add(string.Join(",", headers)); // 헤더 추가
 
         // 데이터 추가 (randomizedQuestions)
-        foreach (var question in randomizedQuestions)
+        /*foreach (var question in randomizedQuestions)
         {
             List<string> row = new List<string>();
             foreach (var header in headers)
@@ -496,7 +500,7 @@ public class GameManager : MonoBehaviour
                 row.Add(question.ContainsKey(header) ? question[header] : ""); // 없는 키는 빈 값으로
             }
             csvLines.Add(string.Join(",", row));
-        }
+        }*/
 
         // 데이터 추가 (userResults)
         foreach (var result in userResults)
