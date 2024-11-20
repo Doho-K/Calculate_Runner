@@ -383,7 +383,7 @@ public class GameManager : MonoBehaviour
                 return;
         }
         if(isTutorial>0){
-            distanceAhead = 15f;
+            distanceAhead = 8f;
         }
         // 플레이어의 현재 위치
         Vector3 playerPosition = player.transform.position;
